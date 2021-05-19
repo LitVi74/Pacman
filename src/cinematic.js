@@ -11,10 +11,12 @@ export class Cinematic extends Sprite {
         this.timer = 0;
         this.frameNum = 0;
 
-        this.nextDirection = "left";
+        this.onEnd = null;
+
+        this.nextDirection = config.nextDirection || null;
     }
 
-    start (name) {
+    start (name, param = {}) {
         let anim = this.animations.find(animation => animation.name === name);
 
         if (anim && this.animation !== anim) {
@@ -24,9 +26,24 @@ export class Cinematic extends Sprite {
             this.frameNum = 0;
             this.frame = this.animation.frames[0];
         }
+
+        if(param.onEnd) {
+            this.onEnd = param.onEnd;
+        }
+    }
+
+    stop () {
+        this.animation = null;
+        this.cooldown = 0;
+        this.timer = 0;
+        this.frameNum = 0;
+        this.frame = null;
     }
 
     changeDirection (walls) {
+        if (!this.nextDirection) {
+            return;
+        }
         switch (this.nextDirection) {
             case "up":
                 this.y -= 10;
@@ -73,12 +90,19 @@ export class Cinematic extends Sprite {
 
     update (delta) {
         super.update(delta);
-        this.timer += delta
 
-        if (this.timer >= this.cooldown) {
-            this.frameNum = (this.frameNum + 1) % this.animation.frames.length;
-            this.frame = this.animation.frames[this.frameNum];
-            this.timer = 0;
+        if (this.animation) {
+            this.timer += delta;
+    
+            if (this.timer >= this.cooldown) {
+                this.frameNum = (this.frameNum + 1) % this.animation.frames.length;
+                this.frame = this.animation.frames[this.frameNum];
+                this.timer = 0;
+    
+                if (this.frameNum === 0 && this.onEnd) {
+                    this.onEnd();
+                }
+            }
         }
     }
 }

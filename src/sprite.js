@@ -26,20 +26,22 @@ export class Sprite extends DisplayObject{
     }
 
     draw (ctx) {
-        ctx.drawImage(
-            this.img,
-            
-            this.frame.x,
-            this.frame.y,
-            this.frame.width,
-            this.frame.height,
-            
-            this.x,
-            this.y,
-            this.width,
-            this.height
-        )
-
-        super.draw(ctx);
+        if (this.frame){
+            ctx.drawImage(
+                this.img,
+                
+                this.frame.x,
+                this.frame.y,
+                this.frame.width,
+                this.frame.height,
+                
+                this.x,
+                this.y,
+                this.width,
+                this.height
+            )
+    
+            super.draw(ctx);
+        }
     }
 }

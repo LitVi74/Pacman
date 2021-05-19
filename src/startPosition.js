@@ -59,13 +59,14 @@ let ghosts = [
     'banana'
 ].map(color => {
     let ghost = new Cinematic({
-        name: `${color}`,
+        name: "ghost",
         img: IMAGE,
-        x: ATLAS.position[color].x *SCALE,
-        y: ATLAS.position[color].y *SCALE,
-        width: ATLAS.position[color].width *SCALE,
-        height: ATLAS.position[color].height *SCALE,
-        animations: ATLAS[`${color}Ghost`]
+        x: ATLAS.position[color].x * SCALE,
+        y: ATLAS.position[color].y * SCALE,
+        width: ATLAS.position[color].width * SCALE,
+        height: ATLAS.position[color].height * SCALE,
+        animations: ATLAS[`${color}Ghost`],
+        nextDirection: ATLAS.position[color].direction
     });
     ghost.start(ATLAS.position[color].direction);
 
@@ -79,7 +80,7 @@ ATLAS.maze.walls.map(wall => startPositions.push(
         y: wall.y * SCALE,
         width: wall.width * SCALE,
         height: wall.height * SCALE,
-        debug: true
+        //debug: true
     }))
 );
 

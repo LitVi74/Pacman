@@ -1,4 +1,4 @@
-import { getWallCollition, haveCollision } from "./additional.js";
+import { getRandomElem, getWallCollition, haveCollision } from "./additional.js";
 import { Group } from "./group.js";
 import { startPositions } from "./startPosition.js";
 
@@ -58,8 +58,11 @@ export class Game{
         let pacman = this.positions.find(elem => elem.name === "pacman");
         let foods = this.positions.filter(elem => elem.name === "food");
         let walls = this.positions.filter(elem => elem.name === "wall");
+        let ghosts = this.positions.filter(elem => elem.name === "ghost");
+
 
         this.update = () => {
+
             let eated = [];
             foods.forEach(food => {
                 if (haveCollision(pacman, food)) {
@@ -70,13 +73,46 @@ export class Game{
             foods = foods.filter(food => !eated.includes(food));
 
             pacman.changeDirection(walls);
+            ghosts.forEach(ghost => ghost.changeDirection(walls));
 
             if (getWallCollition(pacman.getNextPosition(), walls)) {
+                pacman.start(`wait${pacman.animation.name}`);
                 pacman.speedX = 0;
                 pacman.speedY = 0;
             }
+
+            if (pacman.x + pacman.width < 0) {
+                pacman.x = this.canvas.width;
+            } else if (pacman.x > this.canvas.width ) {
+                pacman.x =  -pacman.width;
+            }
+
+            for (let ghost of ghosts) {
+
+                if (getWallCollition(ghost.getNextPosition(), walls)) {
+                    ghost.speedX = 0;
+                    ghost.speedY = 0;
+                }
+
+                if (ghost.speedX == 0 && ghost.speedY == 0) {
+                    ghost.nextDirection = getRandomElem('left', 'right', 'up', 'down');
+                }
+
+                if (pacman.play && haveCollision(pacman, ghost)) {
+                    pacman.speedX = 0;
+                    pacman.speedY = 0;
+                    pacman.start('die', {
+                        onEnd () {
+                            pacman.play = false;
+                            pacman.stop();
+                            this.stage.remove(pacman);
+                        }
+                    });
+                }
+            }
         }
 
+        if (!pacman.play) {return;}
         switch (event.key) {
             case "ArrowLeft" :
                 pacman.nextDirection = "left";

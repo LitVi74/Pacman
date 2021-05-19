@@ -1,5 +1,6 @@
 export class DisplayObject {
     constructor (config = {}) {
+        this.play = config.play || true;
         this.visible = config.visible || true;
 
         this.name = config.name;
