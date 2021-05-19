@@ -1,3 +1,4 @@
+import { getWallCollition } from "./additional.js";
 import { Sprite } from "./sprite.js";
 
 export class Cinematic extends Sprite {
@@ -9,6 +10,8 @@ export class Cinematic extends Sprite {
         this.cooldown = 0;
         this.timer = 0;
         this.frameNum = 0;
+
+        this.nextDirection = "left";
     }
 
     start (name) {
@@ -23,7 +26,53 @@ export class Cinematic extends Sprite {
         }
     }
 
+    changeDirection (walls) {
+        switch (this.nextDirection) {
+            case "up":
+                this.y -= 10;
+                if (!getWallCollition(this, walls)) {
+                    this.nextDirection = null;
+                    this.speedX = 0;
+                    this.speedY = -1;
+                    this.start("up");
+                }
+                this.y += 10;
+                break;
+            case "down":
+                this.y += 10;
+                if (!getWallCollition(this, walls)) {
+                    this.nextDirection = null;
+                    this.speedX = 0;
+                    this.speedY = 1;
+                    this.start("down");
+                }
+                this.y -= 10;
+                break;
+            case "left":
+                this.x -= 10;
+                if (!getWallCollition(this, walls)) {
+                    this.nextDirection = null;
+                    this.speedX = -1;
+                    this.speedY = 0;
+                    this.start("left");
+                }
+                this.x += 10;
+                break;
+            case "right":
+            this.x += 10;
+            if (!getWallCollition(this, walls)) {
+                this.nextDirection = null;
+                this.speedX = 1;
+                this.speedY = 0;
+                this.start("right");
+            }
+            this.x -= 10;
+            break;
+        } 
+    }
+
     update (delta) {
+        super.update(delta);
         this.timer += delta
 
         if (this.timer >= this.cooldown) {

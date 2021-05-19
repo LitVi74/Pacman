@@ -6,10 +6,23 @@ export class Sprite extends DisplayObject{
 
         this.img = config.img || null;
         this.frame = config.frame || null;
+
+        this.speedX = config.speedX || 0;
+        this.speedY = config.speedY || 0;
+    }
+
+    getNextPosition () {
+        return {
+            x: this.x + this.speedX,
+            y: this.y + this.speedY,
+            width: this.width,
+            height: this.height,
+        }
     }
 
     update () {
-        
+        this.x += this.speedX;
+        this.y += this.speedY
     }
 
     draw (ctx) {
@@ -26,5 +39,7 @@ export class Sprite extends DisplayObject{
             this.width,
             this.height
         )
+
+        super.draw(ctx);
     }
 }
