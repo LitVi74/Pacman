@@ -1,6 +1,6 @@
 import { getRandomElem, getWallCollition, haveCollision } from "./additional.js";
 import { Group } from "./group.js";
-import { startPositions } from "./startPosition.js";
+import { blueGhost, startPositions } from "./startPosition.js";
 
 export class Game{
     constructor (config = {}) {
@@ -59,10 +59,12 @@ export class Game{
         let foods = this.positions.filter(elem => elem.name === "food");
         let walls = this.positions.filter(elem => elem.name === "wall");
         let ghosts = this.positions.filter(elem => elem.name === "ghost");
+        let tablets = this.positions.filter(elem => elem.name === "tablet");
 
 
         this.update = () => {
 
+            //Еда
             let eated = [];
             foods.forEach(food => {
                 if (haveCollision(pacman, food)) {
@@ -72,9 +74,11 @@ export class Game{
             });
             foods = foods.filter(food => !eated.includes(food));
 
+            //Отрисовка движения
             pacman.changeDirection(walls);
             ghosts.forEach(ghost => ghost.changeDirection(walls));
 
+            //Движение пакмена
             if (getWallCollition(pacman.getNextPosition(), walls)) {
                 pacman.start(`wait${pacman.animation.name}`);
                 pacman.speedX = 0;
@@ -87,7 +91,9 @@ export class Game{
                 pacman.x =  -pacman.width;
             }
 
+            //Двидение приведений
             for (let ghost of ghosts) {
+                if (!ghost.play) continue;
 
                 if (getWallCollition(ghost.getNextPosition(), walls)) {
                     ghost.speedX = 0;
@@ -98,16 +104,53 @@ export class Game{
                     ghost.nextDirection = getRandomElem('left', 'right', 'up', 'down');
                 }
 
-                if (pacman.play && haveCollision(pacman, ghost)) {
-                    pacman.speedX = 0;
-                    pacman.speedY = 0;
-                    pacman.start('die', {
-                        onEnd () {
-                            pacman.play = false;
-                            pacman.stop();
-                            this.stage.remove(pacman);
-                        }
+                if (pacman.play&& ghost.play && haveCollision(pacman, ghost)) {
+                    if (ghost.isBlue) {
+                        ghost.play = false;
+                        ghost.speedX = 0;
+                        ghost.speedY = 0;
+                        this.stage.remove(ghost);
+                    }else{
+                        pacman.speedX = 0;
+                        pacman.speedY = 0;
+                        pacman.start('die', {
+                            onEnd () {
+                                pacman.play = false;
+                                pacman.stop();
+                                this.stage.remove(pacman);
+                            }
+                        });
+                    }
+                }
+            }
+
+            //Таблетки
+            for (let i = 0; i < tablets.length; i++) {
+                let tablet = tablets[i];
+
+                if (!tablet.eated && haveCollision(pacman, tablet)) {
+                    this.stage.remove(tablet);
+
+                    ghosts.forEach(ghost => {
+                        ghost.originAnimations = ghost.animations;
+                        ghost.animations = blueGhost;
+                        ghost.isBlue = true;
+                        ghost.start(ghost.animation.name);
+                        console.log(ghost);
                     });
+
+                    setTimeout(() => {
+                        ghosts.forEach(ghost => {
+                            ghost.animations = ghost.originAnimations;
+                            ghost.isBlue = false;
+                            ghost.start(ghost.animation.name);
+                            console.log(ghost);
+                        });
+                    }, 5000);
+
+                    tablet.eated = true;
+                    
+                    break;
                 }
             }
         }

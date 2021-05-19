@@ -69,6 +69,7 @@ let ghosts = [
         nextDirection: ATLAS.position[color].direction
     });
     ghost.start(ATLAS.position[color].direction);
+    ghost.isBlue = false;
 
     startPositions.push(ghost);
 });
@@ -84,6 +85,20 @@ ATLAS.maze.walls.map(wall => startPositions.push(
     }))
 );
 
-
+ATLAS.position.tablets.map(tablet => startPositions.push(
+    new Sprite({
+        name: "tablet",
+        img: IMAGE,
+        x: tablet.x * SCALE,
+        y: tablet.y * SCALE,
+        width: tablet.width * SCALE,
+        height: tablet.height * SCALE,
+        frame: ATLAS.tablet,
+    }))
+);
 
 export { startPositions };
+
+let blueGhost = ATLAS.blueGhost;
+
+export {blueGhost};
